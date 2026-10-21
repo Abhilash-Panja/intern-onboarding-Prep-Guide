@@ -1,0 +1,577 @@
+# Angular Two-Way Binding
+
+## 1. Quick recap of data binding
+
+Angular data binding connects the component class with its HTML template.
+
+```text
+TypeScript class → stores data and logic
+HTML template    → displays data and receives user input
+```
+
+Angular provides four main types of data binding:
+
+| Binding | Syntax | Purpose |
+|---|---|---|
+| Interpolation | `{{ value }}` | Displays data as text |
+| Property binding | `[property]="value"` | Sends data to an element property |
+| Event binding | `(event)="method()"` | Responds to user actions |
+| Two-way binding | `[(ngModel)]="value"` | Keeps data and input synchronized |
+
+Two-way binding combines property binding and event binding.
+
+---
+
+# 2. What is two-way binding?
+
+Two-way binding allows data to move in both directions:
+
+```text
+Component → HTML element
+HTML element → Component
+```
+
+For example:
+
+1. The component provides an initial username.
+2. The input displays that username.
+3. The user changes the input.
+4. The component property updates automatically.
+5. Any other template using that property displays the new value.
+
+```text
+Component value
+      ↓
+Input field
+      ↓
+User changes the input
+      ↓
+Component value updates
+      ↓
+The page displays the new value
+```
+
+Two-way binding is mainly used with:
+
+- Text inputs
+- Dropdowns
+- Checkboxes
+- Other form controls
+
+---
+
+# 3. The `ngModel` directive
+
+Angular provides the `ngModel` directive for two-way binding.
+
+```html
+<input [(ngModel)]="username">
+```
+
+This means:
+
+> Keep the input field and the `username` property synchronized.
+
+The syntax is called:
+
+```text
+Banana in a box
+```
+
+Why?
+
+```text
+[(ngModel)]
+```
+
+The round brackets look like a banana inside the square brackets.
+
+---
+
+# 4. How two-way binding works internally
+
+This:
+
+```html
+<input [(ngModel)]="username">
+```
+
+combines:
+
+```html
+<input
+  [ngModel]="username"
+  (ngModelChange)="username = $event">
+```
+
+The two parts have different responsibilities:
+
+```text
+[ngModel]                 → sends username to the input
+(ngModelChange)           → sends the changed value back
+```
+
+Two-way binding simply combines both operations into one shorter syntax.
+
+---
+
+# 5. Enable `ngModel` with `FormsModule`
+
+`ngModel` belongs to Angular's `FormsModule`.
+
+## Standalone component setup
+
+Open `data-binding.ts`:
+
+```typescript
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
+@Component({
+  selector: 'app-data-binding',
+  imports: [FormsModule],
+  templateUrl: './data-binding.html',
+  styleUrl: './data-binding.css'
+})
+export class DataBinding {
+  username = 'Abhi';
+}
+```
+
+Two things are important:
+
+```typescript
+import { FormsModule } from '@angular/forms';
+```
+
+This imports `FormsModule`.
+
+```typescript
+imports: [FormsModule]
+```
+
+This makes the `ngModel` directive available in the component template.
+
+---
+
+# 6. Two-way binding with a text input
+
+Open `data-binding.html`:
+
+```html
+<input
+  type="text"
+  [(ngModel)]="username"
+  placeholder="Enter your name">
+
+<p>Hello, {{ username }}!</p>
+```
+
+## What happens?
+
+When the page loads:
+
+```typescript
+username = 'Abhi';
+```
+
+The input displays:
+
+```text
+Abhi
+```
+
+When the user types a new name:
+
+```text
+The input value changes
+        ↓
+username updates
+        ↓
+{{ username }} displays the new value
+```
+
+No separate event method is required.
+
+---
+
+# 7. Two-way binding with a dropdown
+
+## Component class
+
+```typescript
+course = 'Angular';
+```
+
+## Template
+
+```html
+<select [(ngModel)]="course">
+  <option value="Angular">Angular</option>
+  <option value="TypeScript">TypeScript</option>
+  <option value="HTML">HTML</option>
+</select>
+
+<p>Selected course: {{ course }}</p>
+```
+
+If the user selects `TypeScript`, the `course` property automatically becomes:
+
+```typescript
+course = 'TypeScript';
+```
+
+The paragraph then updates automatically.
+
+---
+
+# 8. Two-way binding with a checkbox
+
+## Component class
+
+```typescript
+isSubscribed = false;
+```
+
+## Template
+
+```html
+<input
+  type="checkbox"
+  [(ngModel)]="isSubscribed">
+
+<p>Subscribed: {{ isSubscribed }}</p>
+```
+
+When the checkbox is selected:
+
+```text
+isSubscribed = true
+```
+
+When it is unselected:
+
+```text
+isSubscribed = false
+```
+
+A checkbox usually works with a boolean value.
+
+---
+
+# 9. Complete example
+
+## `data-binding.ts`
+
+```typescript
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
+@Component({
+  selector: 'app-data-binding',
+  imports: [FormsModule],
+  templateUrl: './data-binding.html',
+  styleUrl: './data-binding.css'
+})
+export class DataBinding {
+  username = 'Abhi';
+  course = 'Angular';
+  isSubscribed = false;
+}
+```
+
+## `data-binding.html`
+
+```html
+<h2>Student Preferences</h2>
+
+<label>
+  Name:
+  <input
+    type="text"
+    [(ngModel)]="username">
+</label>
+
+<br><br>
+
+<label>
+  Course:
+  <select [(ngModel)]="course">
+    <option value="Angular">Angular</option>
+    <option value="TypeScript">TypeScript</option>
+    <option value="HTML">HTML</option>
+  </select>
+</label>
+
+<br><br>
+
+<label>
+  <input
+    type="checkbox"
+    [(ngModel)]="isSubscribed">
+
+  Subscribe to updates
+</label>
+
+<hr>
+
+<h3>Live Preview</h3>
+
+<p>Name: {{ username }}</p>
+<p>Course: {{ course }}</p>
+<p>Subscribed: {{ isSubscribed }}</p>
+```
+
+This example uses:
+
+```text
+[(ngModel)] → keeps form controls and component data synchronized
+{{ }}       → displays the current values
+```
+
+---
+
+# 10. Common mistakes
+
+## Mistake 1: Forgetting `FormsModule`
+
+Incorrect:
+
+```typescript
+@Component({
+  imports: [],
+  // ...
+})
+```
+
+Correct:
+
+```typescript
+import { FormsModule } from '@angular/forms';
+
+@Component({
+  imports: [FormsModule],
+  // ...
+})
+```
+
+Without `FormsModule`, Angular may show:
+
+```text
+Can't bind to 'ngModel' since it isn't a known property of 'input'.
+```
+
+---
+
+## Mistake 2: Writing the brackets in the wrong order
+
+Incorrect:
+
+```html
+<input ([ngModel])="username">
+```
+
+Correct:
+
+```html
+<input [(ngModel)]="username">
+```
+
+The correct order is:
+
+```text
+[ ( ngModel ) ]
+```
+
+The round brackets are inside the square brackets.
+
+---
+
+## Mistake 3: Binding to a property that does not exist
+
+Template:
+
+```html
+<input [(ngModel)]="username">
+```
+
+The component must contain:
+
+```typescript
+username = '';
+```
+
+If `username` is not declared, Angular will report a template error.
+
+---
+
+## Mistake 4: Using the wrong data type
+
+For a checkbox, use a boolean:
+
+```typescript
+isSubscribed = false;
+```
+
+For a text input, use a string:
+
+```typescript
+username = '';
+```
+
+For a dropdown, use a string or number that matches the option values.
+
+---
+
+## Mistake 5: Forgetting `name` inside a form
+
+If `ngModel` is used inside a `<form>`, give each control a `name`:
+
+```html
+<form>
+  <input
+    name="username"
+    [(ngModel)]="username">
+
+  <select
+    name="course"
+    [(ngModel)]="course">
+  </select>
+</form>
+```
+
+---
+
+# 11. Two-way binding with a registration form
+
+## Component class
+
+```typescript
+export class Registration {
+  name = '';
+  email = '';
+  course = 'Angular';
+  agreed = false;
+
+  onSubmit() {
+    console.log({
+      name: this.name,
+      email: this.email,
+      course: this.course,
+      agreed: this.agreed
+    });
+  }
+}
+```
+
+## Template
+
+```html
+<h2>Registration Form</h2>
+
+<form>
+  <label>
+    Name:
+    <input
+      name="name"
+      [(ngModel)]="name">
+  </label>
+
+  <br><br>
+
+  <label>
+    Email:
+    <input
+      name="email"
+      type="email"
+      [(ngModel)]="email">
+  </label>
+
+  <br><br>
+
+  <label>
+    Course:
+    <select
+      name="course"
+      [(ngModel)]="course">
+      <option value="Angular">Angular</option>
+      <option value="TypeScript">TypeScript</option>
+    </select>
+  </label>
+
+  <br><br>
+
+  <label>
+    <input
+      name="agreed"
+      type="checkbox"
+      [(ngModel)]="agreed">
+
+    I agree to the terms
+  </label>
+
+  <br><br>
+
+  <button
+    type="button"
+    [disabled]="!agreed"
+    (click)="onSubmit()">
+    Submit
+  </button>
+</form>
+
+<hr>
+
+<h3>Live Preview</h3>
+
+<p>Name: {{ name }}</p>
+<p>Email: {{ email }}</p>
+<p>Course: {{ course }}</p>
+<p>Agreed: {{ agreed }}</p>
+```
+
+This example combines all four binding types:
+
+```text
+[(ngModel)]        → two-way binding
+{{ value }}        → interpolation
+[disabled]="..."   → property binding
+(click)="..."      → event binding
+```
+
+---
+
+# 12. Comparison of all four bindings
+
+| Binding | Syntax | Direction | Main purpose |
+|---|---|---|---|
+| Interpolation | `{{ value }}` | Component → template | Display text |
+| Property binding | `[property]="value"` | Component → element | Set element properties |
+| Event binding | `(event)="method()"` | Template → component | Respond to user actions |
+| Two-way binding | `[(ngModel)]="value"` | Both directions | Keep data and input synchronized |
+
+---
+
+# Quick revision
+
+Two-way binding uses:
+
+```html
+[(ngModel)]="property"
+```
+
+It keeps a component property and a form control synchronized.
+
+Remember:
+
+- Import `FormsModule`.
+- Add `FormsModule` to the component's `imports` array.
+- Use `[(ngModel)]` for inputs, dropdowns, and checkboxes.
+- Text inputs usually use string properties.
+- Checkboxes usually use boolean properties.
+- Use `name` attributes when controls are inside a form.
+- Two-way binding combines property binding and event binding.
+
+## One-line takeaway
+
+> Two-way binding uses `[(ngModel)]` to keep the component data and the form control synchronized in both directions.
